@@ -54,9 +54,10 @@ export default function ShopHeader() {
                 <Image
                   src="/gp.png"
                   alt="gadget platform"
-                  width={178}
-                  height={72}
-                  className=" w-35"
+                  width={356}
+                  height={144}
+                  className="h-16 w-auto"
+                  priority
                 />
               </Link>
 
@@ -131,9 +132,10 @@ export default function ShopHeader() {
                 <Image
                   src="/gp.png"
                   alt="gadget platform"
-                  width={178}
-                  height={72}
-                  className="rounded-lg w-28"
+                  width={356}
+                  height={144}
+                  className="rounded-lg w-36"
+                  priority
                 />
               </Link>
 
