@@ -10,6 +10,11 @@ import { TableCategory } from "@/types/categories.schema";
 import { convertIsoToDateString } from "@/lib/IsoDateToString";
 export const columns: ColumnDef<TableCategory>[] = [
   {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => <div className="font-mono text-xs">{row.getValue("id")}</div>,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return (
@@ -44,7 +49,7 @@ export const columns: ColumnDef<TableCategory>[] = [
     accessorKey: "createdAt",
     header: () => <div className="text-right">Created At</div>,
     cell: ({ row }) => {
-      const date = new Date().toISOString();
+      const date = row.getValue("createdAt") as string;
       const displayDate = convertIsoToDateString(date);
 
       return <div className="text-right font-medium">{displayDate}</div>;
@@ -56,6 +61,7 @@ export const columns: ColumnDef<TableCategory>[] = [
     enableHiding: false,
     header: () => <div className="text-right">Actions</div>,
     cell: ({ row }) => {
+      const categoryId = row.getValue("id") as string;
       return (
         <div className="flex items-center justify-end gap-4">
           <Button variant="ghost" className="h-8 w-8 p-0">

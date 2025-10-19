@@ -44,15 +44,6 @@ export default function categoryForm() {
     },
   });
 
-  const calculateDiscountPercentage = (
-    original: number,
-    discount: number | undefined
-  ): number => {
-    if (!discount || discount >= original) return 0;
-    return Math.round(((original - discount) / original) * 100);
-  };
-
-  const route = useRouter();
 
   const onSubmit: SubmitHandler<CategoryFormData> = async (
     data: CategoryFormData
@@ -74,12 +65,11 @@ export default function categoryForm() {
     });
     setProcessing(false);
     form.reset();
-    route.push("/dashboard/categories");
+    router.push("/dashboard/categories");
   };
 
   const onCancel = (): void => {
     form.reset();
-    // setGeneratedProduct(null);
   };
 
   const onExit = (): void => {
