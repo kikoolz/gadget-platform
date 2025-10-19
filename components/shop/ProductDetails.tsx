@@ -7,8 +7,6 @@ import {
   ShoppingCart,
   ChevronRight,
   ArrowLeft,
-  Star,
-  Shield,
   Plus,
 } from "lucide-react";
 import Link from "next/link";
@@ -42,7 +40,6 @@ export type ProductDetailProps = {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const { addToCart, updateQuantity, state } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [isWishlisted, setIsWishlisted] = useState(false);
 
@@ -82,7 +79,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   };
 
   const handleBuyNow = () => {
-    console.log(`Buy now: ${quantity} x ${product.title}`);
+    console.log(`Buy now: 1 x ${product.title}`);
   };
 
   const toggleWishlist = () => {
@@ -240,7 +237,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                   </button>
                   <span className="px-4 py-2 border-x border-slate-300 min-w-[60px] text-center">
                     {state.items.find((item) => item.id === product.id)
-                      ?.quantity || quantity}
+                      ?.quantity || 1}
                   </span>
                   <button
                     onClick={() => handleUpdateQuantity(true)}

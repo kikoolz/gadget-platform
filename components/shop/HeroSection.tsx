@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import HomeCarousel from "./HomeCarousel";
 import { getHeroCarouselProducts } from "@/queries/products";
 

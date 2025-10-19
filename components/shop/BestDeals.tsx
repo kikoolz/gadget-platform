@@ -1,10 +1,5 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useState } from "react";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
-import VerticalProductCard from "./VerticalProductCard";
+import React from "react";
 import HorizontalProductCard from "./HorizontalProductCard";
 import { ProductType } from "@/types/products.schema";
 

@@ -33,14 +33,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { Tag, DollarSign, Image, Sparkles } from "lucide-react";
+import { Tag, DollarSign, Sparkles } from "lucide-react";
 import { TableCategory } from "@/types/categories.schema";
 import { generateSlug } from "@/lib/generateSlug";
 import { createProduct } from "@/actions/products";
 import { toast } from "sonner";
 import SubmitButton from "@/components/re-usable/SubmitButton";
-import { useRouter } from "next/dist/client/components/navigation";
-import { decodeAction } from "next/dist/server/app-render/entry-base";
+import { useRouter } from "next/navigation";
 
 // const categories: string[] = [
 //   "Accessories",

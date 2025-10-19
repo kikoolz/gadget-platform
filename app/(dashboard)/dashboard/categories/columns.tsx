@@ -60,8 +60,8 @@ export const columns: ColumnDef<TableCategory>[] = [
     id: "actions",
     enableHiding: false,
     header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => {
-      const categoryId = row.getValue("id") as string;
+    cell: () => {
+      // const categoryId = row.getValue("id") as string; // Will be used for edit/delete actions
       return (
         <div className="flex items-center justify-end gap-4">
           <Button variant="ghost" className="h-8 w-8 p-0">

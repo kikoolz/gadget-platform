@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { ProductCard } from "./ProductCard";
-import { getTrendingProducts } from "@/queries/products";
 import { NewArrivalsProduct } from "@/types/products.schema";
 
 interface TrendingProductsProps {
@@ -19,7 +16,7 @@ export default function TrendingProducts({ products }: TrendingProductsProps) {
   // Filter products by category if not "All"
   const filteredProducts = activeCategory === "All" 
     ? products 
-    : products.filter(product => {
+    : products.filter(() => {
         // You might need to add category information to your product data
         // For now, we'll show all products regardless of category
         return true;

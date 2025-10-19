@@ -89,8 +89,8 @@ export const columns: ColumnDef<TableProduct>[] = [
     id: "actions",
     enableHiding: false,
     header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => {
-      const productId = row.getValue("id") as string;
+    cell: () => {
+      // const productId = row.getValue("id") as string; // Will be used for edit/delete actions
       return (
         <div className="flex items-center justify-end gap-4">
           <Button variant="ghost" className="h-8 w-8 p-0">

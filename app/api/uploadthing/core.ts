@@ -1,52 +1,48 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
-
-// Optional: Add authentication
-const auth = (req: Request) => ({ id: "user123" }); // Replace with real auth
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Single image uploads
   departmentImage: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Department image uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
 
   brandLogo: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Brand logo uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
 
   productImage: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Product image uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
 
   bannerImage: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Banner image uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
 
   categoryImage: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Category image uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
 
   blogImage: f({
     image: { maxFileSize: "1MB" },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Blog image uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
@@ -54,7 +50,7 @@ export const ourFileRouter = {
   // Multiple image uploads
   productImages: f({
     image: { maxFileSize: "4MB", maxFileCount: 4 },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Product images uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
@@ -82,7 +78,7 @@ export const ourFileRouter = {
     "text/plain": { maxFileSize: "1MB", maxFileCount: 4 }, // .txt
     "application/gzip": { maxFileSize: "1MB", maxFileCount: 4 },
     "application/zip": { maxFileSize: "1MB", maxFileCount: 4 },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Files uploaded:", file.url);
     return { uploadedBy: "system" };
   }),
@@ -110,7 +106,7 @@ export const ourFileRouter = {
     "text/plain": { maxFileSize: "1MB", maxFileCount: 4 },
     "application/gzip": { maxFileSize: "1MB", maxFileCount: 4 },
     "application/zip": { maxFileSize: "1MB", maxFileCount: 4 },
-  }).onUploadComplete(async ({ metadata, file }) => {
+  }).onUploadComplete(async ({ file }) => {
     console.log("Mail attachment uploaded:", file.url);
     return { uploadedBy: "system" };
   }),

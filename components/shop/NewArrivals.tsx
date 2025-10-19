@@ -2,19 +2,8 @@ import type React from "react";
 
 import { ProductCard } from "./ProductCard";
 import Link from "next/link";
-import Image from "next/image";
 
 import { getNewArrivals } from "@/queries/products";
-
-interface Product {
-  id: string;
-  title: string;
-  image: string;
-  currentPrice: number;
-  originalPrice?: number;
-  discountPercentage?: number;
-  link: string;
-}
 
 export default async function NewArrivals() {
   const products = await getNewArrivals();

@@ -13,20 +13,12 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { NavCategory } from "@/types/categories.schema";
 import { useQuery } from "@tanstack/react-query";
 import { getNavCategories } from "@/queries/categories";
 import { useCart } from "@/contexts/CartContext";
 
-//COLORS
-//PRIMARY : #204462
-//SECONDARY:#f5c704
 export default function ShopHeader() {
-  const {
-    data: categories = [],
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: categories = [], isLoading } = useQuery({
     queryKey: ["nav-categories"],
     queryFn: () => getNavCategories(),
   });
@@ -37,7 +29,12 @@ export default function ShopHeader() {
   const mobileNavItems = [
     { icon: Home, label: "Home", href: "/", active: true },
     { icon: Grid3X3, label: "Categories", href: "/categories" },
-    { icon: ShoppingCart, label: "Cart", href: "/cart", badge: state.totalItems },
+    {
+      icon: ShoppingCart,
+      label: "Cart",
+      href: "/cart",
+      badge: state.totalItems,
+    },
     { icon: User, label: "Profile", href: "/profile" },
   ];
 

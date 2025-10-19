@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,11 +28,11 @@ import {
 } from "@/types/categories.schema";
 import { generateSlug } from "@/lib/generateSlug";
 import { createCategory } from "@/actions/categories";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import SubmitButton from "@/components/re-usable/SubmitButton";
 
-export default function categoryForm() {
+export default function CategoryForm() {
   const router = useRouter();
   const [processing, setProcessing] = useState(false);
   const form = useForm<CategoryFormData>({

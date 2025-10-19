@@ -50,16 +50,6 @@ export function ProductCard({ product }: { product: NewArrivalsProduct }) {
     }
   };
 
-  const handleDecreaseQuantity = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (cartQuantity > 1) {
-      updateQuantity(product.id, cartQuantity - 1);
-    } else {
-      removeFromCart(product.id);
-    }
-  };
-
   const handleRemoveFromCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();

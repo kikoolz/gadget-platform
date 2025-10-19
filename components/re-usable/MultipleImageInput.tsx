@@ -2,7 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UploadButton } from "@/lib/uploadthing";
-import { Trash } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 

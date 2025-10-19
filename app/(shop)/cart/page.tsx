@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Trash2,
   Minus,
@@ -97,9 +98,11 @@ export default function ShoppingCart1() {
               >
                 <div className="flex flex-col sm:flex-row">
                   <div className="relative h-auto w-full sm:w-40 p-2">
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
+                      width={160}
+                      height={144}
                       className="h-36 w-full object-cover object-center"
                     />
                   </div>

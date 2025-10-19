@@ -2,15 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ShoppingBag,
-  ArrowRight,
-  Star,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { CarouselProduct } from "@/types/products.schema";
 
 export default function HomeCarousel({
@@ -25,10 +17,29 @@ export default function HomeCarousel({
   const slideCount: number = products.length;
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef<NodeJS.Timeout | null>(null);
-  const slideDuration = 8000; // 8 seconds per slide
-  const animationDuration = 700; // 700ms for transitions
+  const slideDuration = 8000;
+  const animationDuration = 700;
 
-  // Reset timer when slide changes
+  const goToSlide = useCallback(
+    (index: number): void => {
+      if (isAnimating) return;
+      setIsAnimating(true);
+      setCurrentSlide(index);
+      setTimeout(() => setIsAnimating(false), animationDuration);
+    },
+    [isAnimating]
+  );
+
+  const goToPrevSlide = useCallback((): void => {
+    const newIndex = (currentSlide - 1 + slideCount) % slideCount;
+    goToSlide(newIndex);
+  }, [currentSlide, goToSlide, slideCount]);
+
+  const goToNextSlide = useCallback((): void => {
+    const newIndex = (currentSlide + 1) % slideCount;
+    goToSlide(newIndex);
+  }, [currentSlide, goToSlide, slideCount]);
+
   useEffect(() => {
     setProgress(0);
 
@@ -56,7 +67,6 @@ export default function HomeCarousel({
     };
   }, [currentSlide, isHovering, slideDuration]);
 
-  // Auto-advance the carousel
   useEffect(() => {
     if (autoPlayRef.current) {
       clearTimeout(autoPlayRef.current);
@@ -73,28 +83,7 @@ export default function HomeCarousel({
         clearTimeout(autoPlayRef.current);
       }
     };
-  }, [currentSlide, isAnimating, isHovering]);
-
-  // Navigation functions
-  const goToSlide = useCallback(
-    (index: number): void => {
-      if (isAnimating) return;
-      setIsAnimating(true);
-      setCurrentSlide(index);
-      setTimeout(() => setIsAnimating(false), animationDuration);
-    },
-    [isAnimating]
-  );
-
-  const goToPrevSlide = useCallback((): void => {
-    const newIndex = (currentSlide - 1 + slideCount) % slideCount;
-    goToSlide(newIndex);
-  }, [currentSlide, goToSlide, slideCount]);
-
-  const goToNextSlide = useCallback((): void => {
-    const newIndex = (currentSlide + 1) % slideCount;
-    goToSlide(newIndex);
-  }, [currentSlide, goToSlide, slideCount]);
+  }, [currentSlide, isAnimating, isHovering, goToNextSlide]);
 
   return (
     <section
@@ -105,7 +94,6 @@ export default function HomeCarousel({
       {/* Full-width image carousel */}
       <div className="absolute inset-0 w-full h-full">
         {products.map((slide, index) => {
-          const alignment = index % 2 === 0 ? "right" : "left";
           return (
             <div
               key={slide.id}
@@ -136,7 +124,6 @@ export default function HomeCarousel({
         })}
       </div>
 
-      {/* Enhanced navigation arrows */}
       <button
         onClick={goToPrevSlide}
         className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white text-gray-800 p-3 md:p-4 rounded-full backdrop-blur-sm transition-all duration-300 border border-white/60 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"

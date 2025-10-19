@@ -5,7 +5,6 @@ import React from "react";
 
 export default async function FeaturedProducts() {
   const products = (await getProducts()) || [];
-  console.log("SLICED PRODUCTS", products.slice(0, 3));
   return (
     <div className="container p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
       {products.slice(0, 3).map((product) => {
