@@ -9,12 +9,14 @@ import {
   ArrowLeft,
   Star,
   Shield,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useCart } from "@/contexts/CartContext";
 
 export type ProductDetailProps = {
-  product?: {
+  product: {
     id: string;
     title: string;
     images: string[];
@@ -32,54 +34,13 @@ export type ProductDetailProps = {
     };
     returnPolicy: string;
     inStock: boolean;
+    slug: string;
+    stock: number;
   };
 };
 
-const sampleProduct = {
-  id: "lato-power-milk-400g",
-  title: "LATO POWER MILK 400G",
-  images: [
-    "/images/momo/products/3.jpg",
-    "/images/momo/products/2.jpg",
-    "/images/momo/products/1.jpg",
-  ],
-  merchantSku: "Lato power milk 400g",
-  sku: "LPM400G001",
-  currentPrice: 19000,
-  originalPrice: 26000,
-  discountPercentage: 29,
-  description:
-    "LATO Power Milk is a premium quality whole milk powder that provides essential nutrients for the whole family. Rich in protein, calcium, and vitamins, this 400g pack ensures you get the best nutritional value. Perfect for daily consumption, baking, and cooking.",
-  specifications: {
-    Weight: "400g",
-    Type: "Whole Milk Powder",
-    Brand: "LATO",
-    Origin: "Uganda",
-    "Shelf Life": "24 months",
-    Storage: "Store in cool, dry place",
-  },
-  seller: {
-    name: "Tilda Enterprises",
-    rating: 4.8,
-    link: "/sellers/tilda-enterprises",
-  },
-  returnPolicy: "This item is eligible for free returns within 30 days.",
-  inStock: true,
-};
-
-const breadcrumbs = [
-  { name: "Home", href: "/" },
-  { name: "Super Market", href: "/categories/supermarket" },
-  { name: "Food & Groceries", href: "/categories/food-groceries" },
-  {
-    name: "Long Life Milk & Dairy Alternatives",
-    href: "/categories/dairy-alternatives",
-  },
-];
-
-export default function ProductDetail({
-  product = sampleProduct,
-}: ProductDetailProps) {
+export default function ProductDetail({ product }: ProductDetailProps) {
+  const { addToCart, updateQuantity, state } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
@@ -90,7 +51,34 @@ export default function ProductDetail({
   };
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} x ${product.title} to cart`);
+    addToCart({
+      id: product.id,
+      name: product.title,
+      slug: product.slug,
+      image: product.images[0],
+      originalPrice: product.originalPrice || product.currentPrice,
+      discountPrice: product.currentPrice,
+      stock: product.stock,
+    });
+  };
+
+  const handleUpdateQuantity = (increment: boolean) => {
+    const cartItem = state.items.find((item) => item.id === product.id);
+    if (cartItem) {
+      const newQuantity = Math.max(1, cartItem.quantity + (increment ? 1 : -1));
+      updateQuantity(product.id, newQuantity);
+    } else {
+      // If item not in cart, add it first
+      addToCart({
+        id: product.id,
+        name: product.title,
+        slug: product.slug,
+        image: product.images[0],
+        originalPrice: product.originalPrice || product.currentPrice,
+        discountPrice: product.currentPrice,
+        stock: product.stock,
+      });
+    }
   };
 
   const handleBuyNow = () => {
@@ -112,6 +100,17 @@ export default function ProductDetail({
       navigator.clipboard.writeText(window.location.href);
     }
   };
+
+  // Dynamic breadcrumbs based on product data
+  const breadcrumbs = [
+    { name: "Home", href: "/" },
+    { name: "Categories", href: "/categories" },
+    {
+      name: product.specifications.Category || "Products",
+      href: `/category/${product.slug}`,
+    },
+    { name: product.title, href: `/products/${product.slug}` },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -154,12 +153,12 @@ export default function ProductDetail({
           {/* Product Images */}
           <div className="lg:col-span-6">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="aspect-square relative bg-slate-50">
+              <div className="aspect-square relative bg-slate-50 p-8">
                 <Image
                   src={product.images[selectedImage] || "/placeholder.svg"}
                   alt={product.title}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority
                 />
               </div>
@@ -234,16 +233,17 @@ export default function ProductDetail({
                 </span>
                 <div className="flex items-center border border-slate-300 rounded-lg">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    onClick={() => handleUpdateQuantity(false)}
                     className="px-3 py-2 hover:bg-slate-50 transition-colors"
                   >
                     -
                   </button>
                   <span className="px-4 py-2 border-x border-slate-300 min-w-[60px] text-center">
-                    {quantity}
+                    {state.items.find((item) => item.id === product.id)
+                      ?.quantity || quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => handleUpdateQuantity(true)}
                     className="px-3 py-2 hover:bg-slate-50 transition-colors"
                   >
                     +
@@ -375,7 +375,7 @@ export default function ProductDetail({
             onClick={handleAddToCart}
             className="border-2 border-slate-800 text-slate-800 py-3 px-4 rounded-xl font-medium text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2"
           >
-            <ShoppingCart className="w-4 h-4" />
+            <Plus className="w-4 h-4" />
             ADD TO CART
           </button>
           <button

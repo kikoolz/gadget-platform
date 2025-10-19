@@ -16,6 +16,7 @@ import { Button } from "../ui/button";
 import { NavCategory } from "@/types/categories.schema";
 import { useQuery } from "@tanstack/react-query";
 import { getNavCategories } from "@/queries/categories";
+import { useCart } from "@/contexts/CartContext";
 
 //COLORS
 //PRIMARY : #204462
@@ -29,14 +30,14 @@ export default function ShopHeader() {
     queryKey: ["nav-categories"],
     queryFn: () => getNavCategories(),
   });
+  const { state } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [cartCount] = useState(3);
 
   const mobileNavItems = [
     { icon: Home, label: "Home", href: "/", active: true },
     { icon: Grid3X3, label: "Categories", href: "/categories" },
-    { icon: ShoppingCart, label: "Cart", href: "/cart", badge: cartCount },
+    { icon: ShoppingCart, label: "Cart", href: "/cart", badge: state.totalItems },
     { icon: User, label: "Profile", href: "/profile" },
   ];
 
@@ -82,9 +83,9 @@ export default function ShopHeader() {
                 <Link href="/cart" className="flex items-center gap-2 ">
                   <div className="relative">
                     <ShoppingCart className="w-5 h-5" />
-                    {cartCount > 0 && (
+                    {state.totalItems > 0 && (
                       <span className="absolute -top-2 -right-2 w-4 h-4 bg-black text-white text-xs rounded-full flex items-center justify-center">
-                        {cartCount}
+                        {state.totalItems}
                       </span>
                     )}
                   </div>
@@ -112,7 +113,7 @@ export default function ShopHeader() {
                   {categories.map((category) => (
                     <Link
                       key={category.name}
-                      href={`/c/${category.slug}`}
+                      href={`/category/${category.slug}`}
                       className="text-slate-700 hover:text-slate-900 transition-colors text-sm font-medium tracking-wide py-2 border-b-2 border-transparent hover:border-slate-700"
                     >
                       {category.name}
@@ -249,7 +250,7 @@ export default function ShopHeader() {
                 {categories.map((category) => (
                   <Link
                     key={category.name}
-                    href={`/c/${category.slug}`}
+                    href={`/category/${category.slug}`}
                     onClick={() => setIsMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors font-medium"
                   >
@@ -282,7 +283,7 @@ export default function ShopHeader() {
                 {categories.map((category) => (
                   <Link
                     key={category.name}
-                    href={`/c/${category.slug}`}
+                    href={`/category/${category.slug}`}
                     onClick={() => setIsMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors font-medium"
                   >

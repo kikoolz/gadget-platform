@@ -44,3 +44,22 @@ export async function getNavCategories(): Promise<NavCategory[]> {
     return [];
   }
 }
+
+export async function getCategoryBySlug(slug: string): Promise<NavCategory | null> {
+  try {
+    const category = await prisma.category.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        name: true,
+        slug: true,
+      },
+    });
+
+    return category;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

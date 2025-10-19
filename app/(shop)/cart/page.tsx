@@ -22,105 +22,36 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-interface CartItem {
-  id: string;
-  name: string;
-  color: string;
-  size: string;
-  price: number;
-  originalPrice: number;
-  quantity: number;
-  image: string;
-  estimatedDelivery: string;
-}
-
-interface CartData {
-  items: CartItem[];
-  shipping: {
-    freeThreshold: number;
-    message: string;
-  };
-}
-
-const cartData: CartData = {
-  items: [
-    {
-      id: "1",
-      name: "Premium Wool Cardigan",
-      color: "Sage Green",
-      size: "M",
-      price: 129.99,
-      originalPrice: 159.99,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800",
-      estimatedDelivery: "2-4 business days",
-    },
-    {
-      id: "2",
-      name: "Designer Leather Bag",
-      color: "Vintage Brown",
-      size: "One Size",
-      price: 299.99,
-      originalPrice: 349.99,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800",
-      estimatedDelivery: "3-5 business days",
-    },
-    {
-      id: "3",
-      name: "Smart Watch Pro",
-      color: "Space Grey",
-      size: "One Size",
-      price: 199.99,
-      originalPrice: 249.99,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop",
-      estimatedDelivery: "1-3 business days",
-    },
-  ],
-  shipping: {
-    freeThreshold: 500,
-    message: "Free shipping on orders over $500",
-  },
-};
+import { useCart } from "@/contexts/CartContext";
+import Link from "next/link";
 
 export default function ShoppingCart1() {
-  const [items, setItems] = useState<CartItem[]>(cartData.items);
+  const { state, updateQuantity, removeFromCart } = useCart();
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
 
-  const updateQuantity = (id: string, increment: boolean) => {
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.max(1, item.quantity + (increment ? 1 : -1)),
-            }
-          : item
-      )
-    );
+  const handleUpdateQuantity = (id: string, increment: boolean) => {
+    const item = state.items.find((item) => item.id === id);
+    if (item) {
+      const newQuantity = Math.max(1, item.quantity + (increment ? 1 : -1));
+      updateQuantity(id, newQuantity);
+    }
   };
 
-  const removeItem = (id: string) => {
+  const handleRemoveItem = (id: string) => {
     setIsRemoving(id);
     setTimeout(() => {
-      setItems((currentItems) => currentItems.filter((item) => item.id !== id));
+      removeFromCart(id);
       setIsRemoving(null);
     }, 300);
   };
 
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const subtotal = state.totalPrice;
+  const savings = state.items.reduce(
+    (sum, item) =>
+      sum + (item.originalPrice - item.discountPrice) * item.quantity,
     0
   );
-  const savings = items.reduce(
-    (sum, item) => sum + (item.originalPrice - item.price) * item.quantity,
-    0
-  );
-  const shipping = subtotal >= cartData.shipping.freeThreshold ? 0 : 15.99;
+  const shipping = subtotal >= 500 ? 0 : 15.99;
   const total = subtotal + shipping;
 
   return (
@@ -130,7 +61,8 @@ export default function ShoppingCart1() {
           Your Shopping Cart
         </h1>
         <p className="text-muted-foreground">
-          {items.length} {items.length === 1 ? "item" : "items"} in your cart •{" "}
+          {state.items.length} {state.items.length === 1 ? "item" : "items"} in
+          your cart •{" "}
           <span className="text-foreground font-semibold">
             ${subtotal.toFixed(2)}
           </span>
@@ -140,7 +72,7 @@ export default function ShoppingCart1() {
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="flex-1 space-y-6">
           {/* Cart Items */}
-          {items.length === 0 ? (
+          {state.items.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <ShoppingBag className="text-muted-foreground/50 mb-4 size-12" />
@@ -148,13 +80,15 @@ export default function ShoppingCart1() {
                 <p className="text-muted-foreground mt-1 text-sm">
                   Add some items to get started
                 </p>
-                <Button className="mt-4 cursor-pointer" variant="outline">
-                  Continue Shopping
-                </Button>
+                <Link href="/">
+                  <Button className="mt-4 cursor-pointer" variant="outline">
+                    Continue Shopping
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ) : (
-            items.map((item) => (
+            state.items.map((item) => (
               <Card
                 key={item.id}
                 className={cn("gap-0 overflow-hidden py-0", {
@@ -162,7 +96,7 @@ export default function ShoppingCart1() {
                 })}
               >
                 <div className="flex flex-col sm:flex-row">
-                  <div className="relative h-auto w-full sm:w-40">
+                  <div className="relative h-auto w-full sm:w-40 p-2">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -177,14 +111,14 @@ export default function ShoppingCart1() {
                           {item.name}
                         </h3>
                         <p className="text-muted-foreground mt-1 text-sm">
-                          {item.color} {item.size && `• ${item.size}`}
+                          Stock: {item.stock}
                         </p>
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive size-8 cursor-pointer"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => handleRemoveItem(item.id)}
                       >
                         <Trash2 className="size-4" />
                       </Button>
@@ -196,7 +130,7 @@ export default function ShoppingCart1() {
                           variant="outline"
                           size="icon"
                           className="size-8 cursor-pointer"
-                          onClick={() => updateQuantity(item.id, false)}
+                          onClick={() => handleUpdateQuantity(item.id, false)}
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="size-3" />
@@ -208,7 +142,8 @@ export default function ShoppingCart1() {
                           variant="outline"
                           size="icon"
                           className="size-8 cursor-pointer"
-                          onClick={() => updateQuantity(item.id, true)}
+                          onClick={() => handleUpdateQuantity(item.id, true)}
+                          disabled={item.quantity >= item.stock}
                         >
                           <Plus className="size-3" />
                         </Button>
@@ -216,11 +151,11 @@ export default function ShoppingCart1() {
 
                       <div className="text-end">
                         <p className="text-lg font-semibold">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ${(item.discountPrice * item.quantity).toFixed(2)}
                         </p>
-                        {item.originalPrice > item.price && (
+                        {item.originalPrice > item.discountPrice && (
                           <p className="text-muted-foreground text-xs line-through">
-                            ${item.originalPrice.toFixed(2)}
+                            ${(item.originalPrice * item.quantity).toFixed(2)}
                           </p>
                         )}
                       </div>
@@ -231,7 +166,7 @@ export default function ShoppingCart1() {
                 <CardFooter className="bg-muted/20 border-t px-4 !py-2">
                   <div className="text-muted-foreground flex items-center text-sm">
                     <Package className="me-2 size-4" />
-                    <span>Estimated delivery: {item.estimatedDelivery}</span>
+                    <span>Estimated delivery: 2-4 business days</span>
                   </div>
                 </CardFooter>
               </Card>
@@ -280,7 +215,7 @@ export default function ShoppingCart1() {
               <Button
                 size="lg"
                 className="mt-4 w-full cursor-pointer text-base font-medium"
-                disabled={items.length === 0}
+                disabled={state.items.length === 0}
               >
                 <ShoppingBag className="me-2 size-5" />
                 Proceed to Checkout
@@ -309,11 +244,13 @@ export default function ShoppingCart1() {
             </CardContent>
           </Card>
 
-          <Button variant="outline" className="w-full cursor-pointer">
-            <Store className="me-2 size-4" />
-            Continue Shopping
-            <MoveRight className="ms-2 size-4" />
-          </Button>
+          <Link href="/">
+            <Button variant="outline" className="w-full cursor-pointer">
+              <Store className="me-2 size-4" />
+              Continue Shopping
+              <MoveRight className="ms-2 size-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import type React from "react";
 
-import ProductCard from "./ProductCard";
+import { ProductCard } from "./ProductCard";
 import Link from "next/link";
 import Image from "next/image";
 

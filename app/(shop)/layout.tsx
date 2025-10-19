@@ -1,5 +1,5 @@
 import ShopHeader from "@/components/shop/ShopHeader";
-import { getNavCategories } from "@/queries/categories";
+import { CartProvider } from "@/contexts/CartContext";
 import React from "react";
 
 export default async function ShopLayout({
@@ -7,11 +7,12 @@ export default async function ShopLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const categories = (await getNavCategories()) || [];
   return (
-    <div>
-      <ShopHeader categories={categories} />
-      {children}
-    </div>
+    <CartProvider>
+      <div>
+        <ShopHeader />
+        {children}
+      </div>
+    </CartProvider>
   );
 }

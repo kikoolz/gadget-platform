@@ -13,27 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { CarouselProduct } from "@/types/products.schema";
 
-// Enhanced types for carousel data
-// interface CarouselSlide {
-//   id: number;
-//   title: string;
-//   subtitle: string;
-//   description: string;
-//   buttonText: string;
-//   secondaryButtonText?: string;
-//   buttonLink: string;
-//   secondaryButtonLink?: string;
-//   imageSrc: string;
-//   mobileImageSrc?: string;
-//   textColor: string;
-//   overlayColor: string;
-//   alignment?: "left" | "right" | "center";
-//   badge?: string;
-//   price?: string;
-//   originalPrice?: string;
-//   discount?: number;
-// }
-
 export default function HomeCarousel({
   products,
 }: {
@@ -119,7 +98,7 @@ export default function HomeCarousel({
 
   return (
     <section
-      className="relative w-full max-w- overflow-hidden h-screen max-h-[600px] min-h-[500px] rounded-xl"
+      className="relative w-full overflow-hidden h-screen max-h-[600px] min-h-[500px] rounded-xl"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -137,12 +116,12 @@ export default function HomeCarousel({
               }`}
             >
               {/* Full-width background image */}
-              <div className="absolute inset-0 w-full h-full">
+              <div className="absolute inset-0 flex items-center justify-center">
                 <Image
                   src={slide.image}
                   alt={`${slide.name}`}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="100vw"
                   priority={index === 0}
                 />
@@ -151,49 +130,6 @@ export default function HomeCarousel({
                 <div
                   className={`absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 backdrop-blur-[2px]`}
                 ></div>
-              </div>
-
-              {/* Content container */}
-              <div className="relative h-full w-full z-10">
-                <div className="container mx-auto h-full flex items-center px-4 md:px-8">
-                  {/* Text content with dynamic positioning */}
-                  <div
-                    className={`w-full lg:w-1/2 max-w-xl ${
-                      alignment === "right"
-                        ? "ml-auto mr-0"
-                        : alignment === "left"
-                        ? "mx-auto text-center"
-                        : "mr-auto ml-0"
-                    }`}
-                  >
-                    <div className="backdrop-blur-sm bg-white/30 p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-white/50">
-                      {/* Title */}
-                      <h2
-                        className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight text-gray-900`}
-                      >
-                        {slide.name}
-                      </h2>
-
-                      {/* Description */}
-                      <p className={`mb-6 md:mb-8 text-sm text-gray-700`}>
-                        {slide.description}
-                      </p>
-
-                      {/* Buttons */}
-                      <div className="flex flex-wrap gap-4">
-                        <Button
-                          asChild
-                          className="bg-blue-900 hover:bg-blue-800 text-white px-8 py-2 h-12 text-base rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl flex items-center"
-                        >
-                          <Link href={`/products/${slide.slug}`}>
-                            <ShoppingBag className="h-4 w-4 mr-2" />
-                            View Details
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           );
