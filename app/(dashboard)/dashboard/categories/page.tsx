@@ -7,7 +7,7 @@ import PageHeader from "@/components/re-usable/page-header";
 import { getCategories } from "@/queries/categories";
 import { TableLoader } from "@/components/re-usable/TableLoader";
 
-export async function CategoriesPage() {
+async function CategoriesPage() {
   const categories = await getCategories();
   return (
     <ContentLayout title="Categories">

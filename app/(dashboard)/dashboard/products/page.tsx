@@ -7,7 +7,7 @@ import { TableLoader } from "@/components/re-usable/TableLoader";
 import { getProducts } from "@/queries/products";
 import { columns } from "./columns";
 
-export async function ProductsPage() {
+async function ProductsPage() {
   const products = await getProducts();
   return (
     <ContentLayout title="Products">
