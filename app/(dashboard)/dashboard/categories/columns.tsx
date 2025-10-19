@@ -1,48 +1,14 @@
 "use client";
 
 import * as React from "react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-  Pencil,
-  Trash,
-} from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, Pencil, Trash } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { TableCategory } from "@/types/categories.schema";
 import { convertIsoToDateString } from "@/lib/IsoDateToString";
 export const columns: ColumnDef<TableCategory>[] = [
-  //   {
-  //     accessorKey: "status",
-  //     header: "Status",
-  //     cell: ({ row }) => (
-  //       <div className="capitalize">{row.getValue("status")}</div>
-  //     ),
-  //   },
   {
     accessorKey: "name",
     header: ({ column }) => {

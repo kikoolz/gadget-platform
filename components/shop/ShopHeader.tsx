@@ -13,23 +13,25 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { NavCategory } from "@/types/categories.schema";
+import { useQuery } from "@tanstack/react-query";
+import { getNavCategories } from "@/queries/categories";
 
 //COLORS
 //PRIMARY : #204462
 //SECONDARY:#f5c704
 export default function ShopHeader() {
+  const {
+    data: categories = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["nav-categories"],
+    queryFn: () => getNavCategories(),
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [cartCount] = useState(3);
-
-  const categories = [
-    { name: "Electronics", href: "/categories/electronics" },
-    { name: "Supermarket", href: "/categories/supermarket" },
-    { name: "Home & Furniture", href: "/categories/home-furniture" },
-    { name: "Sports & Leisure", href: "/categories/sports-leisure" },
-    { name: "Fashion", href: "/categories/fashion" },
-    { name: "Health & Beauty", href: "/categories/health-beauty" },
-  ];
 
   const mobileNavItems = [
     { icon: Home, label: "Home", href: "/", active: true },
@@ -102,19 +104,23 @@ export default function ShopHeader() {
         {/* Categories Navigation */}
         <nav className="bg-white text-black">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between h-14">
-              <div className="flex items-center gap-8">
-                {categories.map((category) => (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className="text-slate-700 hover:text-slate-900 transition-colors text-sm font-medium tracking-wide py-2 border-b-2 border-transparent hover:border-slate-700"
-                  >
-                    {category.name}
-                  </Link>
-                ))}
+            {isLoading ? (
+              <p>Loading categories..</p>
+            ) : (
+              <div className="flex items-center justify-between h-14">
+                <div className="flex items-center gap-8">
+                  {categories.map((category) => (
+                    <Link
+                      key={category.name}
+                      href={`/c/${category.slug}`}
+                      className="text-slate-700 hover:text-slate-900 transition-colors text-sm font-medium tracking-wide py-2 border-b-2 border-transparent hover:border-slate-700"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </nav>
       </div>
@@ -243,7 +249,7 @@ export default function ShopHeader() {
                 {categories.map((category) => (
                   <Link
                     key={category.name}
-                    href={category.href}
+                    href={`/c/${category.slug}`}
                     onClick={() => setIsMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors font-medium"
                   >
@@ -276,7 +282,7 @@ export default function ShopHeader() {
                 {categories.map((category) => (
                   <Link
                     key={category.name}
-                    href={category.href}
+                    href={`/c/${category.slug}`}
                     onClick={() => setIsMenuOpen(false)}
                     className="block px-4 py-3 rounded-xl text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors font-medium"
                   >

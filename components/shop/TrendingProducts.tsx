@@ -321,11 +321,6 @@ export default function TrendingProducts() {
                   {product.name}
                 </h3>
 
-                <div className="flex items-center gap-1">
-                  {renderStars(product.rating)}
-                  <span className="text-xs text-gray-500 ml-1">★★★★★</span>
-                </div>
-
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-900">
                     ${product.price}

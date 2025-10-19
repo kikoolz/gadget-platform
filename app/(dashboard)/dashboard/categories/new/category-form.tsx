@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -11,16 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -36,8 +27,15 @@ import {
   CategoryFormData,
   CreateCategorySchema,
 } from "@/types/categories.schema";
+import { generateSlug } from "@/lib/generateSlug";
+import { createCategory } from "@/actions/categories";
+import { toast, Toaster } from "sonner";
+import { useRouter } from "next/navigation";
+import SubmitButton from "@/components/re-usable/SubmitButton";
 
 export default function categoryForm() {
+  const router = useRouter();
+  const [processing, setProcessing] = useState(false);
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(CreateCategorySchema),
     defaultValues: {
@@ -54,15 +52,39 @@ export default function categoryForm() {
     return Math.round(((original - discount) / original) * 100);
   };
 
-  const onSubmit: SubmitHandler<CategoryFormData> = (
+  const route = useRouter();
+
+  const onSubmit: SubmitHandler<CategoryFormData> = async (
     data: CategoryFormData
   ) => {
-    console.log(data);
+    setProcessing(true);
+    const slug = generateSlug(data.name);
+    const payload = { name: data.name, slug };
+    console.log("SENT DATA:", payload);
+    const res = await createCategory(payload);
+    if (res.error) {
+      toast.error("Failed to create category: ", {
+        description: res.error,
+      });
+      setProcessing(false);
+      return;
+    }
+    toast.success("Success", {
+      description: "Category created successfully!",
+    });
+    setProcessing(false);
+    form.reset();
+    route.push("/dashboard/categories");
   };
 
   const onCancel = (): void => {
     form.reset();
     // setGeneratedProduct(null);
+  };
+
+  const onExit = (): void => {
+    form.reset();
+    router.push("/dashboard/categories");
   };
 
   return (
@@ -108,17 +130,29 @@ export default function categoryForm() {
                   />
 
                   <div className="flex gap-4">
-                    <Button type="submit" className="">
-                      Create Category
-                    </Button>
+                    <SubmitButton
+                      title="Create Category"
+                      loadingTitle="Creating..."
+                      isLoading={processing}
+                    />
 
                     <Button
                       type="button"
                       onClick={onCancel}
                       variant="outline"
                       className=""
+                      disabled={processing}
                     >
                       Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={onExit}
+                      variant="destructive"
+                      className="px-8"
+                      disabled={processing}
+                    >
+                      Exit
                     </Button>
                   </div>
                 </form>

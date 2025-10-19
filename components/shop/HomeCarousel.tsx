@@ -1,222 +1,261 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ShoppingBag,
+  ArrowRight,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CarouselProduct } from "@/types/products.schema";
 
-const carouselSlides = [
-  {
-    title: "Apple HomePod",
-    subtitle: "2nd Gen Speaker",
-    description:
-      "Apple ecosystem and provide high-quality audio playback while also serving as a hub for controlling smart home devices.",
-    image: "/white-apple-homepod-speaker.png",
-    background: "bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900",
-  },
-  {
-    title: "Apple AirPods",
-    subtitle: "Pro 2nd Gen",
-    description:
-      "Experience premium sound quality with active noise cancellation and spatial audio technology.",
-    image: "/white-apple-airpods-pro.png",
-    background:
-      "bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900",
-  },
-  {
-    title: "Apple iPad",
-    subtitle: "Air 5th Gen",
-    description:
-      "Powerful performance meets stunning design in the most capable iPad Air ever.",
-    image: "/silver-apple-ipad-air.png",
-    background: "bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900",
-  },
-];
+// Enhanced types for carousel data
+// interface CarouselSlide {
+//   id: number;
+//   title: string;
+//   subtitle: string;
+//   description: string;
+//   buttonText: string;
+//   secondaryButtonText?: string;
+//   buttonLink: string;
+//   secondaryButtonLink?: string;
+//   imageSrc: string;
+//   mobileImageSrc?: string;
+//   textColor: string;
+//   overlayColor: string;
+//   alignment?: "left" | "right" | "center";
+//   badge?: string;
+//   price?: string;
+//   originalPrice?: string;
+//   discount?: number;
+// }
 
-export default function HomeCarousel() {
-  const [currentSlide, setCurrentSlide] = useState(0);
+export default function HomeCarousel({
+  products,
+}: {
+  products: CarouselProduct[];
+}) {
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const [isHovering, setIsHovering] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
+  const slideCount: number = products.length;
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
+  const slideDuration = 8000; // 8 seconds per slide
+  const animationDuration = 700; // 700ms for transitions
 
+  // Reset timer when slide changes
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-    }, 8000);
-    return () => clearInterval(timer);
-  }, []);
+    setProgress(0);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-  };
+    if (progressRef.current) {
+      clearInterval(progressRef.current);
+    }
 
-  const prevSlide = () => {
-    setCurrentSlide(
-      (prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length
-    );
-  };
+    if (!isHovering) {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            return 0;
+          }
+          return prev + 100 / (slideDuration / 100);
+        });
+      }, 100);
+
+      progressRef.current = interval;
+    }
+
+    return () => {
+      if (progressRef.current) {
+        clearInterval(progressRef.current);
+      }
+    };
+  }, [currentSlide, isHovering, slideDuration]);
+
+  // Auto-advance the carousel
+  useEffect(() => {
+    if (autoPlayRef.current) {
+      clearTimeout(autoPlayRef.current);
+    }
+
+    if (!isHovering && !isAnimating) {
+      autoPlayRef.current = setTimeout(() => {
+        goToNextSlide();
+      }, slideDuration);
+    }
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearTimeout(autoPlayRef.current);
+      }
+    };
+  }, [currentSlide, isAnimating, isHovering]);
+
+  // Navigation functions
+  const goToSlide = useCallback(
+    (index: number): void => {
+      if (isAnimating) return;
+      setIsAnimating(true);
+      setCurrentSlide(index);
+      setTimeout(() => setIsAnimating(false), animationDuration);
+    },
+    [isAnimating]
+  );
+
+  const goToPrevSlide = useCallback((): void => {
+    const newIndex = (currentSlide - 1 + slideCount) % slideCount;
+    goToSlide(newIndex);
+  }, [currentSlide, goToSlide, slideCount]);
+
+  const goToNextSlide = useCallback((): void => {
+    const newIndex = (currentSlide + 1) % slideCount;
+    goToSlide(newIndex);
+  }, [currentSlide, goToSlide, slideCount]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[500px] sm:h-[600px]">
-        {/* Main Carousel - Takes up 2/3 width */}
-        <div className="lg:col-span-2 relative overflow-hidden rounded">
-          <div
-            className="flex transition-transform duration-500 ease-in-out h-full"
-            style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-          >
-            {carouselSlides.map((slide, index) => (
-              <div
-                key={index}
-                className={`min-w-full h-full ${slide.background} relative flex items-center justify-between p-6 sm:p-8 md:p-12`}
-              >
-                {/* Animated background particles */}
-                <div className="absolute inset-0 overflow-hidden">
-                  <div className="absolute top-10 left-10 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                  <div className="absolute top-32 right-20 w-1 h-1 bg-green-400 rounded-full animate-bounce"></div>
-                  <div className="absolute bottom-20 left-20 w-1.5 h-1.5 bg-yellow-400 rounded-full animate-ping"></div>
-                  <div className="absolute top-20 right-32 w-1 h-1 bg-pink-400 rounded-full animate-pulse"></div>
-                  <div className="absolute bottom-32 right-16 w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                </div>
+    <section
+      className="relative w-full max-w- overflow-hidden h-screen max-h-[600px] min-h-[500px] rounded-xl"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Full-width image carousel */}
+      <div className="absolute inset-0 w-full h-full">
+        {products.map((slide, index) => {
+          const alignment = index % 2 === 0 ? "right" : "left";
+          return (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 w-full h-full transition-all duration-700 ease-in-out ${
+                currentSlide === index
+                  ? "opacity-100 z-10 transform scale-100"
+                  : "opacity-0 z-0 transform scale-105"
+              }`}
+            >
+              {/* Full-width background image */}
+              <div className="absolute inset-0 w-full h-full">
+                <Image
+                  src={slide.image}
+                  alt={`${slide.name}`}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                  priority={index === 0}
+                />
 
-                <div className="flex-1 z-10">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2 text-balance">
-                    {slide.title}
-                  </h1>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 text-balance">
-                    {slide.subtitle}
-                  </h2>
-                  <p className="text-white/90 text-sm sm:text-base md:text-lg mb-8 max-w-md leading-relaxed text-pretty">
-                    {slide.description}
-                  </p>
-                  <Button className="bg-white text-black hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-medium">
-                    Shop Now →
-                  </Button>
-                </div>
+                {/* Enhanced gradient overlay for better text readability */}
+                <div
+                  className={`absolute inset-0 bg-gradient-to-r from-white/80 to-white/40 backdrop-blur-[2px]`}
+                ></div>
+              </div>
 
-                <div className="flex-1 flex justify-center items-center z-10">
-                  <img
-                    src={slide.image || "/placeholder.svg"}
-                    alt={slide.title}
-                    className="max-w-[200px] sm:max-w-sm max-h-60 sm:max-h-80 object-contain drop-shadow-2xl"
-                  />
+              {/* Content container */}
+              <div className="relative h-full w-full z-10">
+                <div className="container mx-auto h-full flex items-center px-4 md:px-8">
+                  {/* Text content with dynamic positioning */}
+                  <div
+                    className={`w-full lg:w-1/2 max-w-xl ${
+                      alignment === "right"
+                        ? "ml-auto mr-0"
+                        : alignment === "left"
+                        ? "mx-auto text-center"
+                        : "mr-auto ml-0"
+                    }`}
+                  >
+                    <div className="backdrop-blur-sm bg-white/30 p-6 md:p-8 lg:p-10 rounded-2xl shadow-xl border border-white/50">
+                      {/* Title */}
+                      <h2
+                        className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-4 leading-tight text-gray-900`}
+                      >
+                        {slide.name}
+                      </h2>
+
+                      {/* Description */}
+                      <p className={`mb-6 md:mb-8 text-sm text-gray-700`}>
+                        {slide.description}
+                      </p>
+
+                      {/* Buttons */}
+                      <div className="flex flex-wrap gap-4">
+                        <Button
+                          asChild
+                          className="bg-blue-900 hover:bg-blue-800 text-white px-8 py-2 h-12 text-base rounded-full transition-all duration-300 font-medium shadow-lg hover:shadow-xl flex items-center"
+                        >
+                          <Link href={`/products/${slide.slug}`}>
+                            <ShoppingBag className="h-4 w-4 mr-2" />
+                            View Details
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Enhanced navigation arrows */}
+      <button
+        onClick={goToPrevSlide}
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white text-gray-800 p-3 md:p-4 rounded-full backdrop-blur-sm transition-all duration-300 border border-white/60 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Previous slide"
+        type="button"
+      >
+        <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+      </button>
+
+      <button
+        onClick={goToNextSlide}
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white text-gray-800 p-3 md:p-4 rounded-full backdrop-blur-sm transition-all duration-300 border border-white/60 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Next slide"
+        type="button"
+      >
+        <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+      </button>
+
+      {/* Enhanced slide indicators with progress */}
+      <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center px-4">
+        <div className="bg-black/20 backdrop-blur-md rounded-full px-4 py-3 shadow-lg border border-white/20 flex items-center gap-4">
+          {/* Slide counter */}
+          <div className="text-white font-medium text-sm">
+            <span className="text-base font-bold">{currentSlide + 1}</span>
+            <span className="mx-1">/</span>
+            <span>{slideCount}</span>
           </div>
 
-          {/* Carousel dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {carouselSlides.map((_, index) => (
+          {/* Slide indicators */}
+          <div className="flex space-x-3">
+            {products.map((_: CarouselProduct, index: number) => (
               <button
                 key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  index === currentSlide ? "bg-white" : "bg-white/40"
+                onClick={() => goToSlide(index)}
+                className={`h-2 rounded-full transition-all duration-300 focus:outline-none ${
+                  currentSlide === index
+                    ? "bg-blue-600 w-8"
+                    : "bg-white/50 hover:bg-white/80 w-2"
                 }`}
+                aria-label={`Go to slide ${index + 1}`}
+                aria-current={currentSlide === index ? "true" : "false"}
+                type="button"
               />
             ))}
-            <ChevronLeft
-              onClick={prevSlide}
-              className="absolute top-1/2 right-14 -translate-y-1/2 w-8 h-8  text-white/80 p-1 cursor-pointer z-20"
-            />
-            <ChevronRight
-              onClick={nextSlide}
-              className="absolute top-1/2 left-14 -translate-y-1/2 w-8 h-8   text-white/80  p-1 cursor-pointer z-20"
-            />
           </div>
-        </div>
 
-        {/* Apple Watch Card - Takes up 1/3 width */}
-        <div className="bg-gradient-to-br from-purple-900 via-purple-800 to-red-900 rounded p-6 sm:p-8 flex flex-col justify-between text-white relative overflow-hidden">
-          <div>
-            <h3 className="text-3xl font-bold mb-2 text-balance">Explore</h3>
-            <h4 className="text-3xl font-bold mb-6 text-balance">
-              Apple Watch
-            </h4>
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/20 p-0 font-medium text-lg"
-            >
-              Shop Now →
-            </Button>
-          </div>
-          <div className="flex justify-center mt-8">
-            <img
-              src="/apple-watch-ultra-orange-band.jpg"
-              alt="Apple Watch"
-              className="max-w-48 object-contain drop-shadow-2xl"
-            />
+          {/* Progress bar */}
+          <div className="w-24 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-blue-600 rounded-full transition-all ease-linear"
+              style={{ width: `${progress}%` }}
+            ></div>
           </div>
         </div>
       </div>
-
-      {/* Bottom Row - Three equal cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 h-auto md:h-64">
-        {/* Samsung Gear Camera */}
-        <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded p-6 sm:p-8 flex items-center justify-between text-white relative overflow-hidden">
-          <div>
-            <h3 className="text-2xl font-bold mb-1 text-balance">Samsung</h3>
-            <h4 className="text-2xl font-bold mb-4 text-balance">
-              Gear Camera
-            </h4>
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/20 p-0 font-medium"
-            >
-              Shop Now →
-            </Button>
-          </div>
-          <div className="flex-shrink-0">
-            <img
-              src="/samsung-gear-360-camera-white.jpg"
-              alt="Samsung Gear Camera"
-              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
-            />
-          </div>
-        </div>
-
-        {/* Beats Studio Buds */}
-        <div className="bg-gradient-to-br from-green-600 to-teal-600 rounded p-6 sm:p-8 flex items-center justify-between text-white relative overflow-hidden">
-          <div>
-            <h3 className="text-2xl font-bold mb-1 text-balance">
-              Beats Studio
-            </h3>
-            <h4 className="text-2xl font-bold mb-4 text-balance">Buds</h4>
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/20 p-0 font-medium"
-            >
-              Shop Now →
-            </Button>
-          </div>
-          <div className="flex-shrink-0">
-            <img
-              src="/black-beats-studio-buds-earphones.jpg"
-              alt="Beats Studio Buds"
-              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
-            />
-          </div>
-        </div>
-
-        {/* Hero Camera */}
-        <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-6 sm:p-8 flex items-center justify-between text-white relative overflow-hidden">
-          <div>
-            <h3 className="text-2xl font-bold mb-4 text-balance">
-              Hero Camera
-            </h3>
-            <Button
-              variant="ghost"
-              className="text-white hover:bg-white/20 p-0 font-medium"
-            >
-              Shop Now →
-            </Button>
-          </div>
-          <div className="flex-shrink-0">
-            <img
-              src="/vintage-film-camera-silver.jpg"
-              alt="Hero Camera"
-              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-xl"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 }
